@@ -97,35 +97,35 @@ class Block(nn.Module):
         x = x + self.dropout2(self.feed_forward(self.norm2(x)))
         return x
     
-if __name__ == "__main__":
-    # 设定参数 (参考 ViT-Base 规格)
-    img_size = 224
-    patch_size = 16
-    embed_dim = 768
-    num_classes = 10  # 假设我们要分10类，比如 CIFAR-10
+# if __name__ == "__main__":
+#     # 设定参数 (参考 ViT-Base 规格)
+#     img_size = 224
+#     patch_size = 16
+#     embed_dim = 768
+#     num_classes = 10  # 假设我们要分10类，比如 CIFAR-10
     
-    # 模拟输入：1张 224x224 的 RGB 图片
-    # 维度: (Batch, Channels, Height, Width)
-    dummy_input = torch.randn(1, 3, img_size, img_size)
+#     # 模拟输入：1张 224x224 的 RGB 图片
+#     # 维度: (Batch, Channels, Height, Width)
+#     dummy_input = torch.randn(1, 3, img_size, img_size)
     
-    # 实例化模型
-    model = VisionTransformer(
-        img_size=img_size, 
-        patch_size=patch_size, 
-        embed_dim=embed_dim, 
-        num_layers=12, 
-        num_heads=12, 
-        d_ff=3072, 
-        num_classes=num_classes, 
-        dropout=0.1
-    )
+#     # 实例化模型
+#     model = VisionTransformer(
+#         img_size=img_size, 
+#         patch_size=patch_size, 
+#         embed_dim=embed_dim, 
+#         num_layers=12, 
+#         num_heads=12, 
+#         d_ff=3072, 
+#         num_classes=num_classes, 
+#         dropout=0.1
+#     )
     
-    # 前向传播
-    output = model(dummy_input)
+#     # 前向传播
+#     output = model(dummy_input)
     
-    print(f"输入形状: {dummy_input.shape}")
-    print(f"输出形状: {output.shape}") # 应该是 (1, 10)
+#     print(f"输入形状: {dummy_input.shape}")
+#     print(f"输出形状: {output.shape}") # 应该是 (1, 10)
     
-    # 计算总参数量
-    total_params = sum(p.numel() for p in model.parameters())
-    print(f"模型总参数量: {total_params / 1e6:.2f}M")
+#     # 计算总参数量
+#     total_params = sum(p.numel() for p in model.parameters())
+#     print(f"模型总参数量: {total_params / 1e6:.2f}M")
