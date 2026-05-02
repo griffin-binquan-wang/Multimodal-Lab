@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from MHA import MultiHeadAttention
+from ViT.MHA import MultiHeadAttention
 
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size=224, patch_size=16, in_channels=3, embed_dim=768):
@@ -43,7 +43,7 @@ class VisionTransformer(nn.Module):
         self.norm = nn.LayerNorm(embed_dim)
         self.head = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x):
+    def forward(self, x, return_features):
 
         # 第一阶段：Embedding
         # 1. 基础切块投影 (B, 3, 224, 224) -> (B, 196, 768)
@@ -63,15 +63,16 @@ class VisionTransformer(nn.Module):
         # 第二阶段：Transformer Blocks
         for block in self.blocks:
             x = block(x)
-
         x = self.norm(x)
 
         # 第三阶段：提取 [CLS] token 的输出进行分类
         # x[:, 0] 取出序列中的第一个位置
         cls_token_out = x[:, 0]
-        out = self.head(cls_token_out)
 
-        return out
+        if return_features:
+            return cls_token_out # 直接返回 768 维特征，不走分类头
+        
+        return self.head(cls_token_out) # 走分类头，返回 10 维分类结果
     
 class Block(nn.Module):
     def __init__(self, d_model, num_heads, d_ff, dropout=0.1):

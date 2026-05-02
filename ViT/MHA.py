@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 class ScaledDotProductAttention(nn.Module):
     """
@@ -71,3 +72,37 @@ class MultiHeadAttention(nn.Module):
         # 4. Final linear layer output
         output = self.W_o(attn_output)
         return output, attn_weights
+    
+class PositionalEncoding(nn.Module):
+    """
+    位置编码 (Positional Encoding)
+    由于Transformer没有循环结构，需要通过正余弦函数为词向量注入位置信息
+    """
+    def __init__(self,d_model, dropout, max_len=5000):
+        super().__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        # 创建一个位置编码矩阵 (max_len, d_model)
+        # Create a positional encoding matrix
+        pe = torch.zeros(max_len,d_model)
+        position = torch.arange(0,max_len,dtype=torch.float).unsqueeze(1)
+        
+        # 计算分母项 (基于 10000 的幂运算)
+        # Compute the divisor term based on 10000 power
+        div_term = torch.exp(torch.arange(0,d_model,2).float() * (-math.log(10000.0) / d_model))
+        
+        # 偶数列使用 sin，奇数列使用 cos
+        # Use sin for even indices and cos for odd indices
+        pe[:,0::2] = torch.sin(position * div_term)
+        pe[:,1::2] = torch.cos(position * div_term)
+        
+        # 增加 Batch 维度并注册为 buffer (不参与梯度下降)
+        # Add batch dimension and register as buffer (persistent state not in optimizer)
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe',pe)
+
+    def forward(self,x):
+        # 将位置编码与词向量相加
+        # Add positional encoding to the input embeddings
+        x = x + self.pe[:,:x.size(1),:]
+        return self.dropout(x)
